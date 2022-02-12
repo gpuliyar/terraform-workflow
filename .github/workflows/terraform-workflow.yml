@@ -109,7 +109,7 @@ jobs:
               -backend-config="region=${{ inputs.aws-region }}";
           terraform validate -no-color;
           terraform plan -no-color -out=tfplan -input=false
-          terraform show -json tfplan
+          terraform show -json tfplan >> tfplan-show.json
         working-directory: ./terraform
 
       - name: Terraform Apply
