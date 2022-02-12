@@ -1,0 +1,118 @@
+name: Terraform Workflow
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        description: AWS Region where Terraform state maintained in an S3 bucket and DynamoDB.
+        type: string
+        required: false
+        default: 'us-east-1'
+      s3-bucket:
+        description: AWS S3 bucket to store and version Terraform state.
+        type: string
+        required: true
+      terraform-key:
+        description: Terraform key name to store the Terraform state in an AWS S3 bucket.
+        type: string
+        required: true
+      environment:
+        description: >
+          Deployment environment name. Valid values are 
+            1. production, 
+            2. staging, and 
+            3. other.
+        type: string
+        required: false
+        default: staging
+      github-owner:
+        description: Github Owner Account
+        type: string
+        required: false
+        default: envoy
+      terraform-apply:
+        description: >
+          Apply Terraform? Not all terraforms are applied. Default behavior is not to 
+          apply the terraform. If set to true, the terraform will be applied from the
+          plan output.
+        type: boolean
+        required: false
+        default: false
+      terrform-version:
+        description: >
+          Terraform version to install and use. The default version will be used in all
+          setups. But for any reason, if there is a need to use a different version to
+          get certain capabilities that are available in recent or old terraform installable
+          versions only, then the developer has the flexibility to set the version to
+          install and use explicitly.
+        type: string
+        required: false
+        default: 1.0.7
+    secrets:
+      aws-access-key-id:
+        description: >
+          AWS Access Key ID to sign programmatic requests to make to AWS. Caution: Use
+          IAM access keys instead of root account access keys.
+        required: true
+      aws-secret-access-key:
+        description: >
+          AWS Secret Access Key to sign programmatic requests to make to AWS. Caution: Use
+          IAM access keys instead of root account access keys.
+        required: true
+      cloudflare-email:
+        description: Cloudflare Account to authenticate Cloudflare API.
+        required: false
+      cloudflare-api-key:
+        description: Cloudflare Account API Key to authenticate Cloudflare API.
+        required: false
+      cloudflare-account-id:
+        description: Cloudflare Account ID to authenticate Cloudflare API.
+        required: false
+      github-token:
+        description: Github Token to authenticate Github API and command line.
+        required: true
+
+env:
+  GITHUB_OWNER: ${{ inputs.github-owner }}
+  GITHUB_TOKEN: ${{ secrets.github-token }}
+  S3_BUCKET: ${{ inputs.s3-bucket }}
+  S3_KEY: ${{ inputs.terraform-key }}
+  S3_REGION: ${{ inputs.s3-region }} 
+  TF_VAR_cloudflare_email: ${{ secrets.cloudflare-email }}
+  TF_VAR_cloudflare_api_key: ${{ secrets.cloudflare-api-key }}
+  TF_VAR_cloudflare_account_id: ${{ secrets.cloudflare-account-id }}
+  TF_VAR_environment: ${{ inputs.environment }}
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    name: Terraforming
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+
+      - name: Terraform Plan
+        run: |
+          terraform init \
+              -input=false \
+              -backend-config="bucket=${{ inputs.s3-bucket }}" \
+              -backend-config="key=${{ inputs.terraform-key }}" \
+              -backend-config="region=${{ inputs.aws-region }}";
+          terraform validate -no-color;
+          terraform plan -no-color -out=tfplan -input=false
+          terraform show -json tfplan
+        working-directory: ./terraform
+
+      - name: Terraform Apply
+        if: ${{ inputs.terraform-apply }}
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./terraform
