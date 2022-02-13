@@ -123,6 +123,7 @@ jobs:
       - name: Terraform Summary Report
         uses: gpuliyar/terraform-summary-action@main
         continue-on-error: true
+        working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Apply
         if: ${{ inputs.terraform-apply }}
