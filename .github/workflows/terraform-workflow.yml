@@ -56,14 +56,6 @@ on:
         type: string
         required: false
         default: ./terraform
-      repository-name:
-        description: Git repository name from where workflow triggered due to a git event
-        type: string
-        required: true
-      pr-number:
-        description: Git pull request number from where workflow triggered
-        type: string
-        required: false
     secrets:
       aws-access-key-id:
         description: >
@@ -131,10 +123,6 @@ jobs:
       - name: Terraform Summary Report
         uses: gpuliyar/terraform-summary-action@main
         continue-on-error: true
-        with:
-          repository: ${{ inputs.repository-name }}
-          pr-number: ${{ inputs.pr-number }}
-          environment: ${{ inputs.environment }}
 
       - name: Terraform Apply
         if: ${{ inputs.terraform-apply }}
