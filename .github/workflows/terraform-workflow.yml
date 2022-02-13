@@ -112,6 +112,14 @@ jobs:
           terraform show -json tfplan >> tfplan-show.json
         working-directory: ./terraform
 
+      - name: Terraform Summary Report
+        uses: gpuliyar/terraform-summary-action@main
+        continue-on-error: true
+        with:
+          repository: ${{ github.repository }}
+          pr-number: ${{ github.event.pull_request.number }}
+          environment: ${{ inputs.environment }}
+
       - name: Terraform Apply
         if: ${{ inputs.terraform-apply }}
         run: terraform apply -auto-approve tfplan
