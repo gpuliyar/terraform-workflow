@@ -119,7 +119,7 @@ jobs:
               -backend-config="region=${{ inputs.aws-region }}";
           terraform validate -no-color;
           terraform plan -no-color -out=tfplan -input=false
-          terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json
+          terraform show -no-color -json tfplan | jq '.'
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Summary Report
