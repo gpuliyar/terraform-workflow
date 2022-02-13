@@ -98,7 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: sudo apt-get install moreutils;
+      - run: sudo apt-get install jq moreutils;
 
       - uses: aws-actions/configure-aws-credentials@v1
         with:
