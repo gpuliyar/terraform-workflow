@@ -23,12 +23,12 @@ on:
             2. staging, and 
             3. other.
         type: string
-        required: false
+        required: true
         default: staging
       github-owner:
         description: Github Owner Account
         type: string
-        required: false
+        required: true
         default: envoy
       terraform-apply:
         description: >
@@ -36,7 +36,7 @@ on:
           apply the terraform. If set to true, the terraform will be applied from the
           plan output.
         type: boolean
-        required: false
+        required: true
         default: false
       terrform-version:
         description: >
@@ -46,8 +46,24 @@ on:
           versions only, then the developer has the flexibility to set the version to
           install and use explicitly.
         type: string
-        required: false
+        required: true
         default: 1.0.7
+      terraform-working-directory:
+        description: >
+          The root module path where all the terraform files are managed. The terraform
+          commands to initialize, validate, plan, and apply (if needed) will trigger
+          from this working directory.
+        type: string
+        required: true
+        default: ./terraform
+      repository-name:
+        description: Git repository name from where workflow triggered due to a git event
+        type: string
+        required: true
+      pr-number:
+        description: Git pull request number from where workflow triggered
+        type: string
+        required: false
     secrets:
       aws-access-key-id:
         description: >
@@ -110,17 +126,17 @@ jobs:
           terraform validate -no-color;
           terraform plan -no-color -out=tfplan -input=false
           terraform show -json tfplan >> tfplan-show.json
-        working-directory: ./terraform
+        working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Summary Report
         uses: gpuliyar/terraform-summary-action@main
         continue-on-error: true
         with:
-          repository: ${{ github.repository }}
-          pr-number: ${{ github.event.pull_request.number }}
+          repository: ${{ inputs.repository-name }}
+          pr-number: ${{ inputs.pr-number }}
           environment: ${{ inputs.environment }}
 
       - name: Terraform Apply
         if: ${{ inputs.terraform-apply }}
         run: terraform apply -auto-approve tfplan
-        working-directory: ./terraform
+        working-directory: ${{ inputs.terraform-working-directory }}
