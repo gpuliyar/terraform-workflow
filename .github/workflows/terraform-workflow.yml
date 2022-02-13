@@ -23,12 +23,12 @@ on:
             2. staging, and 
             3. other.
         type: string
-        required: true
+        required: false
         default: staging
       github-owner:
         description: Github Owner Account
         type: string
-        required: true
+        required: false
         default: envoy
       terraform-apply:
         description: >
@@ -36,7 +36,7 @@ on:
           apply the terraform. If set to true, the terraform will be applied from the
           plan output.
         type: boolean
-        required: true
+        required: false
         default: false
       terrform-version:
         description: >
@@ -46,7 +46,7 @@ on:
           versions only, then the developer has the flexibility to set the version to
           install and use explicitly.
         type: string
-        required: true
+        required: false
         default: 1.0.7
       terraform-working-directory:
         description: >
@@ -54,7 +54,7 @@ on:
           commands to initialize, validate, plan, and apply (if needed) will trigger
           from this working directory.
         type: string
-        required: true
+        required: false
         default: ./terraform
       repository-name:
         description: Git repository name from where workflow triggered due to a git event
