@@ -98,6 +98,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - run: sudo apt-get install jq moreutils;
+
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
@@ -117,7 +119,7 @@ jobs:
               -backend-config="region=${{ inputs.aws-region }}";
           terraform validate -no-color;
           terraform plan -no-color -out=tfplan -input=false
-          terraform show -json tfplan >> tfplan-show.json
+          terraform show -json tfplan | jq '.' | sponge tfplan-show.json
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Summary Report
