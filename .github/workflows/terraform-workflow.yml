@@ -109,6 +109,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ inputs.terraform-version }}
+          terraform_wrapper: false
 
       - name: Terraform Plan
         run: |
@@ -119,7 +120,7 @@ jobs:
               -backend-config="region=${{ inputs.aws-region }}";
           terraform validate -no-color;
           terraform plan -no-color -out=tfplan -input=false
-          terraform show -no-color -json tfplan | jq '.'
+          terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Summary Report
