@@ -124,7 +124,7 @@ jobs:
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Summary Report
-        uses: gpuliyar/terraform-summary-action@main
+        uses: envoy/terraform-plan-summary-action@main
         continue-on-error: true
 
       - name: Terraform Apply
