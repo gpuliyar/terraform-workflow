@@ -125,6 +125,8 @@ jobs:
 
       - name: Terraform Summary Report
         uses: envoy/terraform-plan-summary-action@v1
+        with:
+          terraform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
         continue-on-error: true
 
       - name: Terraform Apply
