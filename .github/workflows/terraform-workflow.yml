@@ -134,8 +134,8 @@ jobs:
 
       - uses: envoy/terraform-plan-summary-action@main
         with:
+          terrform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
         continue-on-error: true
-        terrform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
 
       - name: Terraform Apply
         id: terraform-apply
