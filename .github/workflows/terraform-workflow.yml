@@ -133,6 +133,7 @@ jobs:
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - uses: envoy/terraform-plan-summary-action@main
+        with:
         continue-on-error: true
         terrform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
 
