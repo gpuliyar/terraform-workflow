@@ -124,12 +124,10 @@ jobs:
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Summary Report
-        uses: envoy/terraform-plan-summary-action@v1
+        uses: gpuliyar/terraform-summary-action@main
         with:
           terraform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
         continue-on-error: true
-      
-      - run: echo ${{ github.repository }} ${{ github.ref_name }} ${{ github.run_id }}
 
       - name: Terraform Apply
         if: ${{ inputs.terraform-apply }}
