@@ -128,6 +128,8 @@ jobs:
         with:
           terraform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
         continue-on-error: true
+      
+      - run: echo ${{ github.repository }} ${{ github.ref_name }} ${{ github.run_id }}
 
       - name: Terraform Apply
         if: ${{ inputs.terraform-apply }}
