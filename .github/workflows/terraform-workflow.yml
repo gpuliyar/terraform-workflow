@@ -123,8 +123,7 @@ jobs:
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json
         working-directory: ${{ inputs.terraform-working-directory }}
 
-      - name: Terraform Summary Report
-        uses: gpuliyar/terraform-summary-action@main
+      - uses: gpuliyar/terraform-summary-action@main
         with:
           terraform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
         continue-on-error: true
