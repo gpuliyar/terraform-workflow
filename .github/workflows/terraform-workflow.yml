@@ -147,9 +147,14 @@ jobs:
         continue-on-error: true
         working-directory: ${{ inputs.terraform-working-directory }}
 
-      - uses: envoy/zapier-webhook-action@v1.0.0
+      - name: Send Slack Alerts
+        uses: envoy/zapier-webhook-action@v1.0.0
         if: ${{ inputs.send-failure-alert && (steps.terraform-plan.outcome == 'failure' || steps.terraform-apply.outcome == 'failure') }}
         with:
           webhook-id: ${{ secrets.zapier-webhook-id }}
           method: POST
           message: '{ "run_id": "${{ github.run_id }}", "repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}" }'
+
+      - name: Terminate
+        if: ${{ steps.terraform-plan.outcome == 'failure' || steps.terraform-apply.outcome == 'failure' }}
+        run: exit 1;
