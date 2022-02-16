@@ -106,7 +106,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: sudo apt-get install jo jq moreutils;
+      - run: sudo apt-get install jq moreutils;
 
       - uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -135,6 +135,7 @@ jobs:
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - uses: envoy/terraform-plan-summary-action@v2
+        if: ${{ steps.terraform-plan.outcome != 'failure' }}
         with:
           terrform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
         continue-on-error: true
@@ -148,9 +149,7 @@ jobs:
 
       - uses: envoy/zapier-webhook-action@v1.0.0
         if: ${{ inputs.send-failure-alert && (steps.terraform-plan.outcome == 'failure' || steps.terraform-apply.outcome == 'failure') }}
-        env:
-          PAYLOAD: $(jo -p run_id=${{ github.run_id }} repository=${{ github.repository }}, branch=${{ github.ref_name }})
         with:
           webhook-id: ${{ secrets.zapier-webhook-id }}
           method: POST
-          message: "$PAYLOAD"
+          message: '{ "run_id": "${{ github.run_id }}", "repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}" }'
