@@ -147,6 +147,6 @@ jobs:
       - uses: envoy/zapier-webhook-action@v1.0.0
         if: ${{ inputs.send-failure-alert && (steps.terraform-plan.outcome == 'failure' || steps.terraform-apply.outcome == 'failure') }}
         with:
-          webhook-id: {{ secrets.zapier-webhook-id }}
+          webhook-id: ${{ secrets.zapier-webhook-id }}
           method: POST
           message: '{ "run_id": "${{ github.run_id }}", "repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}" }'
