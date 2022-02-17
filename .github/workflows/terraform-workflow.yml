@@ -136,7 +136,7 @@ jobs:
         continue-on-error: true
         working-directory: ${{ inputs.terraform-working-directory }}
 
-      - uses: envoy/terraform-plan-summary-action@v2
+      - uses: gpuliyar/terraform-summary-action@main
         if: ${{ steps.terraform-plan.outcome != 'failure' }}
         continue-on-error: true
         working-directory: ${{ inputs.terraform-working-directory }}
