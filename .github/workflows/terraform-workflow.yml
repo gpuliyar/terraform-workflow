@@ -143,9 +143,10 @@ jobs:
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - if: ${{ steps.terraform-plan.outcome != 'failure' }}
-        uses: envoy/terraform-plan-summary-action@v2
-          with: ${{ inputs.terraform-working-directory }}/tfpan-show.json
         continue-on-error: true
+        uses: envoy/terraform-plan-summary-action@v2
+        with:
+          terraform-plan-file: ${{ inputs.terraform-working-directory }}/tfpan-show.json
 
       - name: Terraform Apply
         id: terraform-apply
