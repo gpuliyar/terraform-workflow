@@ -138,7 +138,6 @@ jobs:
           terraform validate -no-color;
           terraform plan -no-color -out=tfplan -input=false;
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
-          exit 1;
         continue-on-error: true
         working-directory: ${{ inputs.terraform-working-directory }}
 
