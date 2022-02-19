@@ -57,7 +57,12 @@ on:
         required: false
         default: ./terraform
       send-failure-alert:
-        description: Send CI alerts to slack channel during failure
+        description: >
+          Flag to set if the CI should send alerts to slack channel through Zapier Webhook
+          during a failure event. The default option is false - to not send the alert. It
+          is highly recommended to set this option to true during the staging and production
+          setup terraform deployment. Avoid setting this option to true for planning only
+          CI flows. Those scenarios will be caught during the pull request review process.
         type: boolean
         required: false
         default: false
@@ -82,16 +87,20 @@ on:
         description: Cloudflare Account ID to authenticate Cloudflare API.
         required: false
       datadog-api-key:
-        description: Datadog API Key to authenticate the Datadog API calls.
+        description: Datadog API Key to authenticate Datadog API calls.
         required: false
       datadog-app-key:
-        description: Datadog App Key to authenticate the Datadog API calls.
+        description: Datadog App Key to authenticate Datadog API calls.
         required: false
       github-token:
         description: Github Token to authenticate Github API and command line.
         required: true
       zapier-webhook-id:
-        description: Zapier Webhook ID to send the payload for CI alerts
+        description: >
+          Zapier Raw Webhook ID. CI will send the paylod to the Zapier webhook during a failure
+          event. Zapier will capture and transform the payload as per the configuration set in
+          the Zap App. The transformed message is then forwarded to the Slack channel to alert
+          the Infrastructure engineers about the failure.
         required: false
 
 env:
@@ -142,17 +151,17 @@ jobs:
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - if: ${{ steps.terraform-plan.outcome != 'failure' }}
-        continue-on-error: true
         uses: envoy/terraform-plan-summary-action@v2
         with:
           terraform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
+        continue-on-error: true
 
       - name: Terraform Apply
         id: terraform-apply
         if: ${{ steps.terraform-plan.outcome != 'failure' && inputs.terraform-apply }}
-        continue-on-error: true
         run: terraform apply -auto-approve tfplan
         working-directory: ${{ inputs.terraform-working-directory }}
+        continue-on-error: true
 
       - name: Send Slack Alerts
         uses: envoy/zapier-webhook-action@v1.0.0
