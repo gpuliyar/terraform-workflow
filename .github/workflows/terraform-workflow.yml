@@ -215,7 +215,7 @@ jobs:
       - id: git-json
         if: ${{ always() }}
         run: |
-          JSON_OUT=$(jo -p \
+          JSON_OUT=$(jo \
             run_id=${{ github.run_id }} \
             repository=${{ github.repository }} \
             branch=${{ github.ref_name }});
