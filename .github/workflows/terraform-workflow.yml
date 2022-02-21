@@ -147,7 +147,10 @@ jobs:
 
       - run: sudo apt-get install jq moreutils;
 
-      # create terraform vars json 
+      # create terraform vars json if it doesnt exist. terraform plan and apply
+      # commands will not work if the input file is missing. not all terraform
+      # scripts needs this input file, hence create an empty file with an empty
+      # json object in it to continue execution.
       - run: |
           if [ ! -e ${{ inputs.tfvars-json }} ]; then
             echo "{}" | sponge ${{ inputs.tfvars-json }};
