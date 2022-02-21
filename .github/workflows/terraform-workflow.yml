@@ -221,8 +221,6 @@ jobs:
             branch=${{ github.ref_name }});
           echo ::set-output name=payload::$(echo ${JSON_OUT});
 
-      - run: echo "json payload - ${{ steps.git-json.outputs.payload }}"
-
       - name: Send Slack Alerts
         uses: envoy/zapier-webhook-action@v1.0.0
         if: ${{ always() && 
@@ -234,4 +232,4 @@ jobs:
         with:
           webhook-id: ${{ secrets.zapier-webhook-id }}
           method: POST
-          message: '{ "run_id": "${{ github.run_id }}", "repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}" }'
+          message: ${{ steps.git-json.outputs.payload }}
