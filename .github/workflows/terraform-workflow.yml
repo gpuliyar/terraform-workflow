@@ -213,11 +213,13 @@ jobs:
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - id: git-json
+        if: ${{ always() }}
         run: |
-          echo '::set-output name=payload::$(jo -p \
+          JSON_OUT=$(jo -p \
             run_id=${{ github.run_id }} \
             repository=${{ github.repository }} \
-            branch=${{ github.ref_name }})';
+            branch=${{ github.ref_name }});
+          echo '::set-output name=payload::$JSON_OUT';
 
       - run: echo "json payload - ${{ steps.git-json.outputs.payload }}"
 
