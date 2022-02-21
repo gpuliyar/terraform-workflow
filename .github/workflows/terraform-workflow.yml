@@ -195,7 +195,6 @@ jobs:
           terraform validate -no-color;
           terraform plan -destroy -var-file=${{ inputs.tfvars-json }} -no-color -out=tfplan -input=false;
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
-          exit 1;
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - uses: envoy/terraform-plan-summary-action@v2
@@ -226,11 +225,3 @@ jobs:
           webhook-id: ${{ secrets.zapier-webhook-id }}
           method: POST
           message: '{ "run_id": "${{ github.run_id }}", "repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}" }'
-
-      - name: Terminate
-        if: ${{ always() && 
-                (steps.terraform-plan.outcome == 'failure' ||
-                 steps.terraform-plan-destroy.outcome == 'failure' ||
-                 steps.terraform-apply.outcome == 'failure' ||
-                 steps.terraform-apply-destroy.outcome == 'failure') }}
-        run: exit 1;
