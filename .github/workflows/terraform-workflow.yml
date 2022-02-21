@@ -147,6 +147,7 @@ jobs:
 
       - run: sudo apt-get install jq moreutils;
 
+      # create terraform vars json 
       - run: |
           if [ ! -e ${{ inputs.tfvars-json }} ]; then
             echo "{}" | sponge ${{ inputs.tfvars-json }};
@@ -176,6 +177,7 @@ jobs:
           terraform validate -no-color;
           terraform plan -var-file=${{ inputs.tfvars-json }} -no-color -out=tfplan -input=false;
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
+          exit 1;
         continue-on-error: true
         working-directory: ${{ inputs.terraform-working-directory }}
 
