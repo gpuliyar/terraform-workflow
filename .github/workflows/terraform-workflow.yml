@@ -181,7 +181,6 @@ jobs:
           terraform plan -var-file=${{ inputs.tfvars-json }} -no-color -out=tfplan -input=false;
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
           exit 1;
-        continue-on-error: true
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Plan - Destroy
@@ -197,36 +196,32 @@ jobs:
           terraform plan -destroy -var-file=${{ inputs.tfvars-json }} -no-color -out=tfplan -input=false;
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
           exit 1;
-        continue-on-error: true
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - uses: envoy/terraform-plan-summary-action@v2
         with:
           terraform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
-        continue-on-error: true
 
       - name: Terraform Apply
         id: terraform-apply
         if: ${{ steps.terraform-plan.outcome == 'success' && inputs.terraform-apply && !inputs.terraform-destroy }}
         run: terraform apply -var-file=${{ inputs.tfvars-json }} -auto-approve tfplan
         working-directory: ${{ inputs.terraform-working-directory }}
-        continue-on-error: true
 
       - name: Terraform Apply - Destroy
         id: terraform-apply-destroy
         if: ${{ steps.terraform-plan-destroy.outcome == 'success' && inputs.terraform-apply && inputs.terraform-destroy }}
         run: terraform apply -destroy -var-file=${{ inputs.tfvars-json }} -auto-approve tfplan
         working-directory: ${{ inputs.terraform-working-directory }}
-        continue-on-error: true
 
       - name: Send Slack Alerts
         uses: envoy/zapier-webhook-action@v1.0.0
-        if: ${{ inputs.send-failure-alert && failure() }}
+        if: ${{ always() && inputs.send-failure-alert && steps.terraform-*.outcome == 'failure' }}
         with:
           webhook-id: ${{ secrets.zapier-webhook-id }}
           method: POST
           message: '{ "run_id": "${{ github.run_id }}", "repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}" }'
 
       - name: Terminate
-        if: ${{ failure() }}
+        if: ${{ always() && steps.terraform-*.outcome == 'failure' }}
         run: exit 1;
