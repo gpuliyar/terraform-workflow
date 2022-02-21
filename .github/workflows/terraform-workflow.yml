@@ -229,7 +229,6 @@ jobs:
 
       - name: Terminate
         if: ${{ always() && 
-                inputs.send-failure-alert && 
                 (steps.terraform-plan.outcome == 'failure' ||
                  steps.terraform-plan-destroy.outcome == 'failure' ||
                  steps.terraform-apply.outcome == 'failure' ||
