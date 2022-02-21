@@ -147,7 +147,10 @@ jobs:
 
       - run: sudo apt-get install jq moreutils;
 
-      - run: touch ${{ inputs.tfvars-json }};
+      - run: |
+          if [ ! -e ${{ inputs.tfvars-json }} ]; then
+            echo "{}" | sponge ${{ inputs.tfvars-json }};
+          fi
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - uses: aws-actions/configure-aws-credentials@v1
