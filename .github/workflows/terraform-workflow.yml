@@ -147,7 +147,8 @@ jobs:
 
       - run: sudo apt-get install jq moreutils;
 
-      - run: [ -f ${{ inputs.tfvars-json }} ] && echo 'input tfvar found' || echo '{}' >> ${{ inputs.tfvars-json }}
+      - run: |
+          [ -f ${{ inputs.tfvars-json }} ] && echo 'input tfvar found' || echo '{}' >> ${{ inputs.tfvars-json }}
 
       - uses: aws-actions/configure-aws-credentials@v1
         with:
