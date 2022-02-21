@@ -145,7 +145,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: sudo apt-get install jq moreutils;
+      - run: sudo apt-get install jq jo moreutils;
 
       # create terraform vars json if it doesnt exist. terraform plan and apply
       # commands will not work if the input file is missing. not all terraform
@@ -180,7 +180,6 @@ jobs:
           terraform validate -no-color;
           terraform plan -var-file=${{ inputs.tfvars-json }} -no-color -out=tfplan -input=false;
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
-          exit 1;
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - name: Terraform Plan - Destroy
@@ -212,6 +211,15 @@ jobs:
         if: ${{ inputs.terraform-apply && inputs.terraform-destroy }}
         run: terraform apply -destroy -var-file=${{ inputs.tfvars-json }} -auto-approve tfplan
         working-directory: ${{ inputs.terraform-working-directory }}
+
+      - id: git-json
+        run: |
+          echo '::set-output name=payload::$(jo -p \
+            run_id=${{ github.run_id }} \
+            repository=${{ github.repository }} \
+            branch=${{ github.ref_name }})';
+
+      - run: echo "json payload - ${{ steps.git-json.outputs.payload }}"
 
       - name: Send Slack Alerts
         uses: envoy/zapier-webhook-action@v1.0.0
