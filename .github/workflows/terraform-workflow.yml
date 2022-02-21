@@ -149,6 +149,7 @@ jobs:
 
       - run: |
           [ -f ${{ inputs.tfvars-json }} ] && echo 'input tfvar found' || echo '{}' >> ${{ inputs.tfvars-json }}
+        working-directory: ${{ inputs.terraform-working-directory }}
 
       - uses: aws-actions/configure-aws-credentials@v1
         with:
