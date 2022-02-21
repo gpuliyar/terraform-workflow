@@ -216,12 +216,12 @@ jobs:
 
       - name: Send Slack Alerts
         uses: envoy/zapier-webhook-action@v1.0.0
-        if: ${{ always() && inputs.send-failure-alert && steps.terraform-*.outcome == 'failure' }}
+        if: ${{ always() && inputs.send-failure-alert && contains(steps.terraform-*.outcome, 'failure') }}
         with:
           webhook-id: ${{ secrets.zapier-webhook-id }}
           method: POST
           message: '{ "run_id": "${{ github.run_id }}", "repository": "${{ github.repository }}", "branch": "${{ github.ref_name }}" }'
 
       - name: Terminate
-        if: ${{ always() && steps.terraform-*.outcome == 'failure' }}
+        if: ${{ always() && contains(steps.terraform-*.outcome, 'failure') }}
         run: exit 1;
