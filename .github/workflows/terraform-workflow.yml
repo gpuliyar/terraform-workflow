@@ -101,13 +101,16 @@ on:
           IAM access keys instead of root account access keys.
         required: true
       cloudflare-email:
-        description: Cloudflare Account to authenticate Cloudflare API.
+        description: Cloudflare Account to authenticate Cloudflare API calls.
         required: false
       cloudflare-api-key:
-        description: Cloudflare Account API Key to authenticate Cloudflare API.
+        description: Cloudflare Account API Key to authenticate Cloudflare API calls.
         required: false
       cloudflare-account-id:
-        description: Cloudflare Account ID to authenticate Cloudflare API.
+        description: Cloudflare Account ID to authenticate Cloudflare API calls.
+        required: false
+      heroku-api-key:
+        description: Heroku API key to authenticate Heroku API calls.
         required: false
       datadog-api-key:
         description: Datadog API Key to authenticate Datadog API calls.
@@ -129,6 +132,7 @@ on:
 env:
   GITHUB_OWNER: ${{ inputs.github-owner }}
   GITHUB_TOKEN: ${{ secrets.github-token }}
+  HEROKU_API_KEY: ${{ secrets.heroku-api-key }}
   S3_BUCKET: ${{ inputs.s3-bucket }}
   S3_KEY: ${{ inputs.terraform-key }}
   S3_REGION: ${{ inputs.s3-region }} 
@@ -138,6 +142,7 @@ env:
   TF_VAR_datadog_api_key: ${{ secrets.datadog-api-key }}
   TF_VAR_datadog_app_key: ${{ secrets.datadog-app-key }}
   TF_VAR_environment: ${{ inputs.environment }}
+
 
 jobs:
   terraform:
