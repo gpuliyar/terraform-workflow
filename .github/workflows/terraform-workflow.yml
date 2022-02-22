@@ -40,8 +40,9 @@ on:
         default: false
       terraform-destroy:
         description: >
-          Set to true to destroy terraform resources. Default behavior is set to false.
-          In short, the resources are not destroyed by default.
+          Set it to true to destroy terraform resources. Default behavior is set to false 
+          - resources not destroyed. It works in conjunction with terraform plan and apply. 
+          If this flag is set, the job will plan and apply terraform with destroy flag.
         type: boolean
         required: false
         default: false
@@ -149,8 +150,9 @@ jobs:
 
       # create terraform vars json if it doesnt exist. terraform plan and apply
       # commands will not work if the input file is missing. not all terraform
-      # scripts needs this input file, hence create an empty file with an empty
-      # json object in it to continue execution.
+      # scripts needs this input file; hence, create a new file with an empty
+      # json object in the working directory if the file is missing to continue
+      # terraform execution.
       - run: |
           if [ ! -e ${{ inputs.tfvars-json }} ]; then
             echo "{}" | sponge ${{ inputs.tfvars-json }};
