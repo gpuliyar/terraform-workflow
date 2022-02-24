@@ -163,7 +163,7 @@ jobs:
         uses: actions/download-artifact@v2
         with: 
           name: ${{ inputs.terraform-artifact }}
-          path: ${{ inputs.terraform-working-directory }}/${{ inputs.terraform-vars }}
+          path: ${{ inputs.terraform-working-directory }}
 
       - run: cat ${{ inputs.terraform-vars }}
         working-directory: ${{ inputs.terraform-working-directory }}
