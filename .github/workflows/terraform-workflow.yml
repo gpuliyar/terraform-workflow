@@ -164,9 +164,10 @@ jobs:
         with: 
           name: ${{ inputs.terraform-artifact }}
 
-      - run: |
-          cat ${{ inputs.terraform-vars }};
-          sudo apt-get install jq jo moreutils;
+      - run: cat ${{ inputs.terraform-vars }};
+        working-directory: ${{ inputs.terraform-working-directory }}
+
+      - run: sudo apt-get install jq jo moreutils;
 
       - uses: aws-actions/configure-aws-credentials@v1
         with:
