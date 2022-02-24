@@ -178,7 +178,6 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Plan
-        if: ${{ !inputs.terraform-destroy }}
         id: terraform-plan
         run: |
           TF_OPTS="plan"
@@ -189,7 +188,7 @@ jobs:
             TF_OPTS="$TF_OPTS -destroy";
           fi
           TF_OPTS="$TF_OPTS -no-color -out=tfplan -input=false";
-          echo "options are : " $TF_OPTS;
+
           terraform init \
               -input=false \
               -backend-config="bucket=${{ inputs.s3-bucket }}" \
@@ -207,14 +206,14 @@ jobs:
 
       - name: Terraform Apply
         id: terraform-apply
-        if: ${{ inputs.terraform-apply && !inputs.terraform-destroy }}
+        if: ${{ inputs.terraform-apply }}
         run: |
           TF_OPTS="apply"
           if [[ "${{ inputs.terraform-destroy }}" == "true" ]]; then
             TF_OPTS="$TF_OPTS -destroy";
           fi
           TF_OPTS="$TF_OPTS -auto-approve tfplan";
-          echo "options are : " $TF_OPTS;
+
           terraform $TF_OPTS;
         working-directory: ${{ inputs.terraform-working-directory }}
 
