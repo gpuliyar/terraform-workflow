@@ -181,7 +181,7 @@ jobs:
         if: ${{ !inputs.terraform-destroy }}
         id: terraform-plan
         run: |
-          [[ -z "${{ inputs.terraform-vars }}" ]] && OPTS=$OPT+" -var-file=${{ inputs.tfvars-json }}";
+          [[ -z "${{ inputs.terraform-vars }}" ]] && OPTS=$OPT+" -var-file=${{ inputs.terraform-vars }}";
           [[ "${{ inputs.terraform-destroy }}" == "true" ]] && OPTS=$OPT+" -destroy";
           echo $OPTS;
           terraform init \
