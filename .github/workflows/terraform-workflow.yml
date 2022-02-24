@@ -181,9 +181,13 @@ jobs:
         if: ${{ !inputs.terraform-destroy }}
         id: terraform-plan
         run: |
-          [[ -z "${{ inputs.terraform-vars }}" ]] && OPTS=$OPT+" -var-file=${{ inputs.terraform-vars }}";
-          [[ "${{ inputs.terraform-destroy }}" == "true" ]] && OPTS=$OPT+" -destroy";
-          echo $OPTS;
+          if [[ -z "${{ inputs.terraform-vars }}" ]]; then
+            OPTS=$OPT+" -var-file=${{ inputs.terraform-vars }}";
+          fi
+          if [[ "${{ inputs.terraform-destroy }}" == "true" ]]; then
+            OPTS=$OPT+" -destroy";
+          fi
+          echo "options are : " $OPTS;
           terraform init \
               -input=false \
               -backend-config="bucket=${{ inputs.s3-bucket }}" \
@@ -203,8 +207,10 @@ jobs:
         id: terraform-apply
         if: ${{ inputs.terraform-apply && !inputs.terraform-destroy }}
         run: |
-          [[ "${{ inputs.terraform-destroy }}" == "true" ]] && OPTS=$OPT+" -destroy";
-          echo $OPTS;
+          if [[ "${{ inputs.terraform-destroy }}" == "true" ]]; then
+            OPTS=$OPT+" -destroy";
+          fi
+          echo "options are : " $OPTS;
           terraform apply $OPTS -auto-approve tfplan;
         working-directory: ${{ inputs.terraform-working-directory }}
 
