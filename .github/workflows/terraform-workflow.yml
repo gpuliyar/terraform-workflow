@@ -163,17 +163,7 @@ jobs:
         uses: actions/download-artifact@v2
         with: 
           name: ${{ inputs.terraform-artifact }}
-          path: ${{ inputs.terraform-working-directory }}/
-
-      - run: |
-          ls;
-          echo "---"
-          ls ./terraform;
-          echo "---"
-          ls ./terraform/${{ inputs.terraform-vars }};
-          echo "---"
-          cat ./terraform/${{ inputs.terraform-vars }};
-          echo "---"
+          path: ${{ inputs.terraform-working-directory }}
 
       - run: sudo apt-get install jq jo moreutils;
 
