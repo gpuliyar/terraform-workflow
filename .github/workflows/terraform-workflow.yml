@@ -166,6 +166,7 @@ jobs:
           path: ${{ inputs.terraform-working-directory }}/${{ inputs.terraform-vars }}
 
       - run: cat ${{ inputs.terraform-vars }}
+        working-directory: ${{ inputs.terraform-working-directory }}
 
       - run: sudo apt-get install jq jo moreutils;
 
