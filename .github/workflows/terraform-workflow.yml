@@ -181,20 +181,22 @@ jobs:
         if: ${{ !inputs.terraform-destroy }}
         id: terraform-plan
         run: |
+          TF_OPTS="plan"
           if [[ "${{ inputs.terraform-vars }}" != "" ]]; then
-            OPTS=$OPT+" -var-file=${{ inputs.terraform-vars }}";
+            TF_OPTS="$TF_OPTS -var-file=${{ inputs.terraform-vars }}";
           fi
           if [[ "${{ inputs.terraform-destroy }}" == "true" ]]; then
-            OPTS=$OPT+" -destroy";
+            TF_OPTS="$TF_OPTS -destroy";
           fi
-          echo "options are : " $OPTS;
+          TF_OPTS="$TF_OPTS -no-color -out=tfplan -input=false";
+          echo "options are : " $TF_OPTS;
           terraform init \
               -input=false \
               -backend-config="bucket=${{ inputs.s3-bucket }}" \
               -backend-config="key=${{ inputs.terraform-key }}" \
               -backend-config="region=${{ inputs.aws-region }}";
           terraform validate -no-color;
-          terraform plan $OPTS -no-color -out=tfplan -input=false;
+          terraform $TF_OPTS;
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
         working-directory: ${{ inputs.terraform-working-directory }}
 
@@ -207,11 +209,13 @@ jobs:
         id: terraform-apply
         if: ${{ inputs.terraform-apply && !inputs.terraform-destroy }}
         run: |
+          TF_OPTS="apply"
           if [[ "${{ inputs.terraform-destroy }}" == "true" ]]; then
-            OPTS=$OPT+" -destroy";
+            TF_OPTS="$TF_OPTS -destroy";
           fi
-          echo "options are : " $OPTS;
-          terraform apply $OPTS -auto-approve tfplan;
+          TF_OPTS="$TF_OPTS -auto-approve tfplan";
+          echo "options are : " $TF_OPTS;
+          terraform $TF_OPTS;
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - id: git-json
