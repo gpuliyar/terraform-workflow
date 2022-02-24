@@ -164,8 +164,11 @@ jobs:
         with: 
           name: ${{ inputs.terraform-artifact }}
 
-      - run: cat ${{ inputs.terraform-vars }};
-        working-directory: ${{ inputs.terraform-working-directory }}
+      - run: ls
+
+      - run: ls ./terraform
+
+      - run: ls ./terraform/input
 
       - run: sudo apt-get install jq jo moreutils;
 
