@@ -56,7 +56,7 @@ on:
         type: string
         required: false
         default: 1.0.7
-      tfvars-json:
+      terraform-vars:
         description: >
           Terraform is a complex system used by Infrastructure engineers to deploy, manage, 
           and destroy resources across multiple platforms. The number of input values the 
@@ -64,13 +64,22 @@ on:
           destination platform to another. It is not easy to input all those values into this 
           reusable workflow as these input values might get specific to each deployment and the 
           platform involved. To support those specific configurations needed for particular 
-          deployments, the developer can use the terraform vars JSON file as a means to send 
+          deployments, the developer can use the terraform vars YAML file as a means to send 
           those additional required values for the terraform plan, apply and destroy to work 
-          successfully. Input is a file name and the default terraform vars json file name is
-          terraform.tfvars.json.
+          successfully.
         type: string
         required: false
-        default: terraform.tfvars.json
+      terraform-artifact:
+        description: >
+          It goes in conjunction with the above input variable terraform-vars. The input option 
+          is useful when there is a need to pass a file that is dynamically created in the source
+          workflow and would like to share that file in this reusable workflow. Good examples for
+          such scenrios where the jobs has to share a file is when the source creates a temporary
+          file that has secrets in them. Workflows or jobs doesn't provide an option to share files, 
+          so the best possible way is to use the upload artifact feature in the source job, and 
+          pass that artifact name to this workflow to download.
+        required: false
+        type: string
       terraform-working-directory:
         description: >
           The root module path where all the terraform files are managed. The terraform
@@ -120,7 +129,7 @@ on:
         required: false
       github-token:
         description: Github Token to authenticate Github API and command line.
-        required: true
+        required: false
       zapier-webhook-id:
         description: >
           Zapier Raw Webhook ID. CI will send the paylod to the Zapier webhook during a failure
@@ -143,7 +152,6 @@ env:
   TF_VAR_datadog_app_key: ${{ secrets.datadog-app-key }}
   TF_VAR_environment: ${{ inputs.environment }}
 
-
 jobs:
   terraform:
     runs-on: ubuntu-latest
@@ -151,18 +159,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: sudo apt-get install jq jo moreutils;
+      - if: ${{ inputs.terraform-artifact != '' }}
+        uses: actions/download-artifact@v2
+        with: 
+          name: ${{ inputs.terraform-artifact }}
 
-      # create terraform vars json if it doesnt exist. terraform plan and apply
-      # commands will not work if the input file is missing. not all terraform
-      # scripts needs this input file; hence, create a new file with an empty
-      # json object in the working directory if the file is missing to continue
-      # terraform execution.
-      - run: |
-          if [ ! -e ${{ inputs.tfvars-json }} ]; then
-            echo "{}" | sponge ${{ inputs.tfvars-json }};
-          fi
-        working-directory: ${{ inputs.terraform-working-directory }}
+      - run: sudo apt-get install jq jo moreutils;
 
       - uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -179,44 +181,31 @@ jobs:
         if: ${{ !inputs.terraform-destroy }}
         id: terraform-plan
         run: |
+          [[ -z "${{ inputs.terraform-vars }}" ]] && OPTS=$OPT+" -var-file=${{ inputs.tfvars-json }}";
+          [[ "${{ inputs.terraform-destroy }}" == "true" ]] && OPTS=$OPT+" -destroy";
+          echo $OPTS;
           terraform init \
               -input=false \
               -backend-config="bucket=${{ inputs.s3-bucket }}" \
               -backend-config="key=${{ inputs.terraform-key }}" \
               -backend-config="region=${{ inputs.aws-region }}";
           terraform validate -no-color;
-          terraform plan -var-file=${{ inputs.tfvars-json }} -no-color -out=tfplan -input=false;
+          terraform plan $OPTS -no-color -out=tfplan -input=false;
           terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
         working-directory: ${{ inputs.terraform-working-directory }}
 
-      - name: Terraform Plan - Destroy
-        if: ${{ inputs.terraform-destroy }}
-        id: terraform-plan-destroy
-        run: |
-          terraform init \
-              -input=false \
-              -backend-config="bucket=${{ inputs.s3-bucket }}" \
-              -backend-config="key=${{ inputs.terraform-key }}" \
-              -backend-config="region=${{ inputs.aws-region }}";
-          terraform validate -no-color;
-          terraform plan -destroy -var-file=${{ inputs.tfvars-json }} -no-color -out=tfplan -input=false;
-          terraform show -no-color -json tfplan | jq '.' | sponge tfplan-show.json;
-        working-directory: ${{ inputs.terraform-working-directory }}
-
-      - uses: envoy/terraform-plan-summary-action@v2
+      - name: Summart Report
+        uses: envoy/terraform-plan-summary-action@v2
         with:
           terraform-plan-file: ${{ inputs.terraform-working-directory }}/tfplan-show.json
 
       - name: Terraform Apply
         id: terraform-apply
         if: ${{ inputs.terraform-apply && !inputs.terraform-destroy }}
-        run: terraform apply -var-file=${{ inputs.tfvars-json }} -auto-approve tfplan
-        working-directory: ${{ inputs.terraform-working-directory }}
-
-      - name: Terraform Apply - Destroy
-        id: terraform-apply-destroy
-        if: ${{ inputs.terraform-apply && inputs.terraform-destroy }}
-        run: terraform apply -destroy -var-file=${{ inputs.tfvars-json }} -auto-approve tfplan
+        run: |
+          [[ "${{ inputs.terraform-destroy }}" == "true" ]] && OPTS=$OPT+" -destroy";
+          echo $OPTS;
+          terraform apply $OPTS -auto-approve tfplan;
         working-directory: ${{ inputs.terraform-working-directory }}
 
       - id: git-json
@@ -233,9 +222,7 @@ jobs:
         if: ${{ always() && 
                 inputs.send-failure-alert && 
                 (steps.terraform-plan.outcome == 'failure' ||
-                 steps.terraform-plan-destroy.outcome == 'failure' ||
-                 steps.terraform-apply.outcome == 'failure' ||
-                 steps.terraform-apply-destroy.outcome == 'failure') }}
+                 steps.terraform-apply.outcome == 'failure') }}
         with:
           webhook-id: ${{ secrets.zapier-webhook-id }}
           method: POST
