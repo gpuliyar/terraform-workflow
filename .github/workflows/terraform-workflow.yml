@@ -167,9 +167,17 @@ jobs:
 
       - run: |
           ls;
+          echo "---"
           ls ./terraform;
-          ls ./terraform/${{ inputs.terraform-vars }}
-          cat ./terraform/${{ inputs.terraform-vars }}
+          echo "---"
+          ls ${{ inputs.terraform-vars }};
+          echo "---"
+          cat ${{ inputs.terraform-vars }};
+          echo "---"
+          ls ./terraform/${{ inputs.terraform-vars }};
+          echo "---"
+          cat ./terraform/${{ inputs.terraform-vars }};
+          echo "---"
 
       - run: sudo apt-get install jq jo moreutils;
 
