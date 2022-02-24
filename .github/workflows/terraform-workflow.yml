@@ -170,10 +170,6 @@ jobs:
           echo "---"
           ls ./terraform;
           echo "---"
-          ls ${{ inputs.terraform-vars }};
-          echo "---"
-          cat ${{ inputs.terraform-vars }};
-          echo "---"
           ls ./terraform/${{ inputs.terraform-vars }};
           echo "---"
           cat ./terraform/${{ inputs.terraform-vars }};
