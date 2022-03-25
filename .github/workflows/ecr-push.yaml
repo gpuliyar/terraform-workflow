@@ -1,0 +1,49 @@
+name: ECR Push
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        description: AWS ECR Region where the Container Images maintained.
+        type: string
+        required: false
+        default: 'us-east-1'
+    secrets:
+      aws-access-key-id:
+        description: >
+          AWS Access Key ID to sign programmatic requests to make to AWS. Caution: Use
+          IAM access keys instead of root account access keys.
+        required: true
+      aws-secret-access-key:
+        description: >
+          AWS Secret Access Key to sign programmatic requests to make to AWS. Caution: Use
+          IAM access keys instead of root account access keys.
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Git Tag
+      id: git-tag
+      run: echo ::set-output name=id::${GITHUB_REF#refs/*/}
+
+    - uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.aws-access-key-id }}
+        aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+        aws-region: ${{ inputs.aws-region }}
+
+    - id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build & Push
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ github.repository }}
+        IMAGE_TAG: ${{ steps.git-tag.outputs.id }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
