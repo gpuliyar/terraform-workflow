@@ -45,7 +45,8 @@ jobs:
         echo $output
         if [ $? -ne 0 ]; then
           if echo ${output} | grep -q RepositoryNotFoundException; then
-            aws ecr create-repository --repository-name "${ECR_REPOSITORY}"
+            output=$(aws ecr create-repository --repository-name "${ECR_REPOSITORY}")
+            echo $output
           else
             >&2 echo ${output}
           fi
