@@ -37,9 +37,19 @@ jobs:
     - id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - uses: gpuliyar/create-ecr-repo@main
-      with:
-        repository: ${{ github.repository }}
+    - env:
+        ECR_REPOSITORY: ${{ github.repository }}
+      run: |
+        aws ecr describe-repositories --repository-names "${ECR_REPOSITORY}"
+        output=$(aws ecr describe-repositories --repository-names "${{ inputs.repository }}" 2>&1)
+        echo $output
+        if [ $? -ne 0 ]; then
+          if echo ${output} | grep -q RepositoryNotFoundException; then
+            aws ecr create-repository --repository-name "${ECR_REPOSITORY}"
+          else
+            >&2 echo ${output}
+          fi
+        fi
 
     - name: Build & Push
       env:
