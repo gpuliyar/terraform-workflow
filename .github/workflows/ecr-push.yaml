@@ -37,15 +37,16 @@ jobs:
     - id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - continue-on-error: true
-      env:
+    - env:
         ECR_REPOSITORY: ${{ github.repository }}
       run: |
         aws ecr describe-repositories --repository-names "${ECR_REPOSITORY}"
         output=$(aws ecr describe-repositories --repository-names "${{ inputs.repository }}" 2>&1)
         echo $output
         if [ $? -ne 0 ]; then
+          echo "inside the first if condition"
           if echo ${output} | grep -q RepositoryNotFoundException; then
+            echo "inside the second if condition"
             output=$(aws ecr create-repository --repository-name "${ECR_REPOSITORY}")
             echo $output
           else
