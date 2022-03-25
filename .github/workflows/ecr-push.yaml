@@ -42,7 +42,9 @@ jobs:
       run: |
         aws ecr describe-repositories --repository-names "${ECR_REPOSITORY}"
         output=$(aws ecr describe-repositories --repository-names "${{ inputs.repository }}" 2>&1)
+        echo "***********"
         echo $output
+        echo "***********"
         if [ $? -ne 0 ]; then
           echo "inside the first if condition"
           if echo ${output} | grep -q RepositoryNotFoundException; then
