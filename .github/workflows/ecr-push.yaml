@@ -6,6 +6,10 @@ on:
         type: string
         required: false
         default: 'us-east-1'
+      image-tag:
+        description: Container image tag
+        type: string
+        required: true
     secrets:
       aws-access-key-id:
         description: >
@@ -22,11 +26,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - run: sudo apt-get install jq
+
     - uses: actions/checkout@v3
-    
-    - name: Git Tag
-      id: git-tag
-      run: echo ::set-output name=id::${GITHUB_REF#refs/*/}
 
     - uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -37,6 +39,9 @@ jobs:
     - id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - id: existing-ecr-repo
+      run: aws ecr describe-repositories | jq '.repositories[].repositoryName'
+
     - continue-on-error: true
       run: aws ecr create-repository --repository-name ${{ github.repository }}
 
@@ -44,7 +49,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ github.repository }}
-        IMAGE_TAG: ${{ steps.git-tag.outputs.id }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
