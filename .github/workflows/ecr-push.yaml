@@ -40,9 +40,12 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
 
     - id: existing-ecr-repo
-      run: aws ecr describe-repositories | jq 'any(.repositories[].repositoryName == "${{ github.repository }}"; .)'
+      run: |
+        REPO_FOUND=$(aws ecr describe-repositories | jq 'any(.repositories[].repositoryName == "${{ github.repository }}"; .)')
+        echo ::set-output name=found::${REPO_FOUND}
 
     - continue-on-error: true
+      if: steps.existing-ecr-repo.outputs.found != "true"
       run: aws ecr create-repository --repository-name ${{ github.repository }}
 
     - name: Build & Push
