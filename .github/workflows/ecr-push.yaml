@@ -40,7 +40,7 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
 
     - id: existing-ecr-repo
-      run: aws ecr describe-repositories | jq '.repositories[].repositoryName'
+      run: aws ecr describe-repositories | jq 'any(.repositories[].repositoryName == "${{ github.repository }}"; .)'
 
     - continue-on-error: true
       run: aws ecr create-repository --repository-name ${{ github.repository }}
