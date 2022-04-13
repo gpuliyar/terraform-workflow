@@ -45,7 +45,7 @@ jobs:
         echo ::set-output name=found::${REPO_FOUND}
 
     - continue-on-error: true
-      if: ${{ steps.existing-ecr-repo.outputs.found != "true" }}
+      if: steps.existing-ecr-repo.outputs.found != 'true'
       run: aws ecr create-repository --repository-name ${{ github.repository }}
 
     - name: Build & Push
