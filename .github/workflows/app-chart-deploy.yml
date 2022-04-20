@@ -1,10 +1,6 @@
 on:
   workflow_call:
     inputs:
-      input-file:
-        description: The input values.yml file to merge with the base helm chart to deploy
-        type: string
-        required: true
       image-tag:
         description: The container image to deploy in the Kubernetes Cluster
         type: string
