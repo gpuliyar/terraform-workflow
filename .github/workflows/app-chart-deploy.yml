@@ -1,0 +1,23 @@
+on:
+  workflow_call:
+    inputs:
+      input-file:
+        description: The input values.yml file to merge with the base helm chart to deploy
+        type: string
+        required: true
+      image-tag:
+        description: The container image to deploy in the kubernetes cluster
+        type: string
+        required: true
+
+jobs:
+  helm-chart-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: gpuliyar/merge-helm-yml@main
+      with:
+        repository: ${{ github.repository }}
+        image-tag: image-tag
