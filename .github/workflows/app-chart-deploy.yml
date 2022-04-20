@@ -6,9 +6,14 @@ on:
         type: string
         required: true
       image-tag:
-        description: The container image to deploy in the kubernetes cluster
+        description: The container image to deploy in the Kubernetes Cluster
         type: string
         required: true
+      k8s-env:
+        description: The Kubernetes Cluster environment where to deploy the application
+        type: string
+        required: true
+        default: staging
 
 jobs:
   helm-chart-deploy:
@@ -17,7 +22,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: gpuliyar/merge-helm-yml@main
+    - uses: gpuliyar/merge-helm-values@main
       with:
+        values-file: k8s-config/values-${{ inputs.k8s-env }}.yml
         repository: ${{ github.repository }}
-        image-tag: image-tag
+        image-tag: ${{ inputs.image-tag }}
