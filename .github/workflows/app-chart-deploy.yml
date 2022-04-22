@@ -9,13 +9,6 @@ on:
         description: The Kubernetes Cluster environment where to deploy the application
         type: string
         required: true
-    secrets:
-      chart-username:
-        description: Chartmuseum login username
-        required: true
-      chart-password:
-        description: Chartmuseum login password
-        required: true
 
 jobs:
   helm-chart-deploy:
