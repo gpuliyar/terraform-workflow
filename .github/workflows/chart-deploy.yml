@@ -21,8 +21,7 @@ jobs:
       with:
         repository: envoy/infra-helm
         ref: main
-        path: infra-helm
-        token: ${{ secrets.GITHUB_TOKEN }}
+        path: helm
 
     - run: |
         ls .
