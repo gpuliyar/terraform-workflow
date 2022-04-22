@@ -24,11 +24,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - uses: gpuliyar/merge-helm-values@main
+    - uses: actions/checkout@v3
       with:
-        values-file: k8s-config/values-${{ inputs.environment }}.yml
-        repository: ${{ github.repository }}
-        image-tag: ${{ inputs.image-tag }}
+        repository: envoy/infra-helm
+        path: infra-helm
+
+    - run: |
+        ls .
+        ls infra-helm/.
 
     - run: |
         git config user.name ${{ github.actor }}
@@ -37,6 +40,7 @@ jobs:
     - uses: azure/setup-helm@v1
 
     - name: Push Helm Chart
+      if: ${{ 1 == 0 }}
       run: |
         helm plugin install https://github.com/chartmuseum/helm-push
         helm repo add chartmuseum https://chartmuseum.k8s.envoy.christmas/ \
