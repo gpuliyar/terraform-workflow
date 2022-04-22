@@ -22,6 +22,7 @@ jobs:
         repository: envoy/infra-helm
         branch: main
         path: infra-helm
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - run: |
         ls .
