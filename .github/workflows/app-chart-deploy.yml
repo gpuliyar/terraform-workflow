@@ -5,11 +5,17 @@ on:
         description: The container image to deploy in the Kubernetes Cluster
         type: string
         required: true
-      k8s-env:
+      environment:
         description: The Kubernetes Cluster environment where to deploy the application
         type: string
         required: true
-        default: staging
+    secrets:
+      chart-username:
+        description: Chartmuseum login username
+        required: true
+      chart-password:
+        description: Chartmuseum login password
+        required: true
 
 jobs:
   helm-chart-deploy:
@@ -20,6 +26,26 @@ jobs:
 
     - uses: gpuliyar/merge-helm-values@main
       with:
-        values-file: k8s-config/values-${{ inputs.k8s-env }}.yml
+        values-file: k8s-config/values-${{ inputs.environment }}.yml
         repository: ${{ github.repository }}
         image-tag: ${{ inputs.image-tag }}
+
+    - run: |
+        git config user.name ${{ github.actor }}
+        git config user.email ${{ github.actor }}@users.noreply.github.com
+
+    - uses: azure/setup-helm@v1
+
+    - name: Push Helm Chart
+      run: |
+        helm plugin install https://github.com/chartmuseum/helm-push
+        helm repo add chartmuseum https://chartmuseum.k8s.envoy.christmas/ \
+            --username ${{ secrets.chart-username }} \
+            --password ${{ secrets.chart-password }}
+        find ./charts -maxdepth 1 -mindepth 1 -type d | sed 's:.*/::' >> chart_list.txt
+        while read p; do
+          helm cm-push charts/$p chartmuseum \
+              --username ${{ secrets.chart-username }} \
+              --password ${{ secrets.chart-password }} \
+              --force
+        done <chart_list.txt
