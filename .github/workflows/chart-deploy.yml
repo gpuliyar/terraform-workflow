@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - run: sudo apt-get install tree
+
     - uses: actions/checkout@v2
 
     - uses: actions/checkout@v2
@@ -37,6 +39,7 @@ jobs:
         rm -rf helm
         ls charts/*
         ls *
+        tree
 
     - run: |
         git config user.name ${{ github.actor }}
