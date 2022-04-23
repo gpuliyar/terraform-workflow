@@ -36,6 +36,11 @@ jobs:
         mkdir -p charts
         mv infra-helm/charts/envoy-app/* charts
 
+    - uses: gpuliyar/merge-chart-values@main
+      with:
+        repository: ${{ github.repository }}
+        chart-tag: ${{ inputs.chart-tag }}
+
     - uses: azure/setup-helm@v1
 
     - name: Save Helm
