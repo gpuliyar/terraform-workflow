@@ -25,9 +25,9 @@ jobs:
     steps:
     - run: sudo apt-get install tree
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         repository: envoy/infra-helm
         ref: main
@@ -38,12 +38,6 @@ jobs:
       run: |
         mkdir -p charts
         mv helm/charts/envoy-app/* charts
-        rm -rf helm
-        tree charts/.
-
-    - run: |
-        git config user.name ${{ github.actor }}
-        git config user.email ${{ github.actor }}@users.noreply.github.com
 
     - uses: azure/setup-helm@v1
 
