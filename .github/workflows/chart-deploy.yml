@@ -46,4 +46,4 @@ jobs:
         echo ${{ secrets.gh-token }} | helm registry login ${{ env.GCR_IMAGE }} --username ${{ github.repository_owner }} --password-stdin
         helm package ${{ github.workspace }}/charts
 
-    - run: helm push envoy-app-2.0.0.tgz oci://${{ env.GCR_IMAGE }}:${{ inputs.image-tag }}
+    - run: helm push envoy-app-2.0.0.tgz oci://${{ env.GCR_IMAGE }}
