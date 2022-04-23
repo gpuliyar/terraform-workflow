@@ -1,7 +1,7 @@
 on:
   workflow_call:
     inputs:
-      image-tag:
+      chart-tag:
         description: The container image to deploy in the Kubernetes Cluster
         type: string
         required: true
@@ -43,7 +43,7 @@ jobs:
 
     - name: Save Helm
       run: |
-        echo ${{ secrets.gh-token }} | helm registry login ${{ env.GCR_IMAGE }} --username ${{ github.repository_owner }} --password-stdin
-        helm package ${{ github.workspace }}/charts
-
-    - run: helm push envoy-app-2.0.0.tgz oci://${{ env.GCR_IMAGE }}
+        echo ${{ secrets.gh-token }} | helm registry login ghcr.io --username ${{ github.repository_owner }} --password-stdin
+        helm package ${{ github.workspace }}/charts --version ${{ inputs.chart-tag }}
+        helm push envoy-app-${{ inputs.chart-tag }}.tgz oci://ghcr.io/${{ github.repository }}
+        helm registry logout ghcr.io
