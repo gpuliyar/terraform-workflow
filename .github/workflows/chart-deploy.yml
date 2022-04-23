@@ -36,6 +36,7 @@ jobs:
       with:
         repository: ${{ github.event.repository.name }}
         chart-tag: ${{ inputs.chart-tag }}
+        environment: ${{ inputs.environment }}
 
     - uses: azure/setup-helm@v1
 
