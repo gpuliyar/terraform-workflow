@@ -47,5 +47,5 @@ jobs:
       run: |
         echo ${{ secrets.gh-token }} | helm registry login ghcr.io --username ${{ github.repository_owner }} --password-stdin
         helm package ${{ github.workspace }}/charts --version ${{ inputs.chart-tag }}
-        helm push envoy-app-${{ inputs.chart-tag }}.tgz oci://ghcr.io/${{ github.repository }}
+        helm push ${{ github.event.repository.name }}-${{ inputs.chart-tag }}.tgz oci://ghcr.io/${{ github.repository }}
         helm registry logout ghcr.io
