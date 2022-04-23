@@ -35,7 +35,7 @@ jobs:
         mkdir -p charts
         mv helm/charts/envoy-app/* charts
         rm -rf helm
-        tree
+        tree charts/.
 
     - run: |
         git config user.name ${{ github.actor }}
