@@ -50,5 +50,6 @@ jobs:
     - name: Save Helm
       run: |
         echo ${{ secrets.gh-token }} | helm registry login ${{ env.GCR_IMAGE }} --username ${{ github.repository_owner }} --password-stdin
-        helm package ${{ github.workspace }}/charts/ ${{ env.GCR_IMAGE }}:${{ github.sha }}
-        helm push ${{ env.GCR_IMAGE }}:${{ github.sha }}
+        helm package ${{ github.workspace }}/charts/ ${{ env.GCR_IMAGE }}:${{ inputs.image-tag }}
+
+    - run: helm push ${{ env.GCR_IMAGE }}:${{ inputs.image-tag }}
