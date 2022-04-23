@@ -14,6 +14,10 @@ on:
         description: GH Token
         required: true
 
+env:
+  HELM_EXPERIMENTAL_OCI: 1
+  GCR_IMAGE: ghcr.io/${{ github.repository }}
+
 jobs:
   helm-chart-deploy:
     runs-on: ubuntu-latest
@@ -43,6 +47,8 @@ jobs:
 
     - uses: azure/setup-helm@v1
 
-    - uses: helm/chart-releaser-action@v1.4.0
-      env:
-        CR_TOKEN: ${{ secrets.gh-token }}
+    - name: Save Helm
+      run: |
+        echo ${{ secrets.gh-token }} | helm registry login ${{ env.GCR_IMAGE }} --username ${{ github.repository_owner }} --password-stdin
+        helm chart save ${{ github.workspace }}/charts/ ${{ env.GCR_IMAGE }}:${{ github.sha }}
+        helm chart push ${{ env.GCR_IMAGE }}:${{ github.sha }}
