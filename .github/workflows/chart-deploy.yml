@@ -29,8 +29,10 @@ jobs:
         token: ${{ secrets.gh-token }}
 
     - run: |
-        ls .
-        ls helm/.
+        mkdir charts
+        mv helm/charts/envoy-app/* charts/*
+        rm -rf helm
+        ls charts/*
 
     - run: |
         git config user.name ${{ github.actor }}
