@@ -29,8 +29,11 @@ jobs:
         token: ${{ secrets.gh-token }}
 
     - run: |
-        mkdir charts
-        mv helm/charts/envoy-app/* charts/*
+        ls *
+        ls helm/*
+        mkdir -p charts
+        ls *
+        mv helm/charts/envoy-app charts/.
         rm -rf helm
         ls charts/*
 
