@@ -14,10 +14,6 @@ on:
         description: GH Token
         required: true
 
-env:
-  HELM_EXPERIMENTAL_OCI: 1
-  GCR_IMAGE: ghcr.io/${{ github.repository }}
-
 jobs:
   helm-chart-deploy:
     runs-on: ubuntu-latest
@@ -49,3 +45,5 @@ jobs:
         helm package ${{ github.workspace }}/charts --version ${{ inputs.chart-tag }}
         helm push ${{ github.event.repository.name }}-${{ inputs.chart-tag }}.tgz oci://ghcr.io/${{ github.repository_owner }}
         helm registry logout ghcr.io
+      env:
+        HELM_EXPERIMENTAL_OCI: 1
