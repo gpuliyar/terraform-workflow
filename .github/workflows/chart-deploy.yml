@@ -30,15 +30,11 @@ jobs:
         path: helm
         token: ${{ secrets.gh-token }}
 
-    - run: |
-        ls *
-        ls helm/*
+    - name: Move Charts
+      run: |
         mkdir -p charts
-        ls *
         mv helm/charts/envoy-app/* charts
         rm -rf helm
-        ls charts/*
-        ls *
         tree
 
     - run: |
