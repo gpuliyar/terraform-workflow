@@ -52,5 +52,5 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: ${{ github.event.repository.name }}-${{ inputs.chart-tag }}.tgz
-        path: charts/${{ github.event.repository.name }}-${{ inputs.chart-tag }}.tgz
+        path: ${{ github.event.repository.name }}-${{ inputs.chart-tag }}.tgz
 
