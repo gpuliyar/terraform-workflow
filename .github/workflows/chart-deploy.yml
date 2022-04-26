@@ -48,3 +48,9 @@ jobs:
         helm registry logout ghcr.io
       env:
         HELM_EXPERIMENTAL_OCI: 1
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.event.repository.name }}-${{ inputs.chart-tag }}.tgz
+        path: charts/${{ github.event.repository.name }}-${{ inputs.chart-tag }}.tgz
+
