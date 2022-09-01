@@ -3,11 +3,7 @@ on:
     types:
     - published
   push:
-    tags:
-    - v*
   pull_request:
-    branches:
-    - main
 
 jobs:
   print-context:
