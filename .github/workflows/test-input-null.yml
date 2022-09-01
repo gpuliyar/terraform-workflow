@@ -1,0 +1,24 @@
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: The application Helm package tag
+        type: string
+        required: true
+      environment:
+        description: The application environment
+        type: string
+        required: true
+      sha:
+        description: Input Git SHA
+        type: string
+        required: false
+
+jobs:
+  test-if-input:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - env:
+        IN_VALUE: ${{ inputs.sha }} || ${{ github.event.pull_request.head.sha }}
+      run: echo $IN_VALUE
