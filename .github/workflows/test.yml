@@ -6,4 +6,3 @@ jobs:
     with:
       environment: staging
       tag: new-tag
-      sha: new-sha
