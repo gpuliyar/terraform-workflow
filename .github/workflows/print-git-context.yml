@@ -1,0 +1,19 @@
+on:
+  release:
+    types:
+    - published
+  push:
+    tags:
+    - v*
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  print-context:
+    runs-on: ubuntu-latest
+
+    steps:
+      run: echo $GIT_CONTEXT
+      env:
+        GIT_CONTEXT: ${{ toJson(github) }}
