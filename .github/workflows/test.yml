@@ -1,0 +1,9 @@
+on: pull_request
+
+jobs:
+  promote-to-latest:
+    uses: ./.github/workflows/test-input-null.yml
+    with:
+      environment: staging
+      tag: new-tag
+      sha: new-sha
